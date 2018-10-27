@@ -1,0 +1,245 @@
+petik@petik-All-Series:~$ sudo su
+[sudo] password for petik: 
+root@petik-All-Series:/home/petik# psql -U postgres
+Password for user postgres: 
+psql (9.5.12)
+Type "help" for help.
+
+postgres=# \q
+root@petik-All-Series:/home/petik# su - postgres
+postgres@petik-All-Series:~$ psql dbpelatihan -U siswa1 -p5432 -h localhost
+Password for user siswa1: 
+psql (9.5.12)
+SSL connection (protocol: TLSv1.2, cipher: ECDHE-RSA-AES256-GCM-SHA384, bits: 256, compression: off)
+Type "help" for help.
+
+dbpelatihan=> select * from pg_language;
+ lanname  | lanowner | lanispl | lanpltrusted | lanplcallfoid | laninline | lanvalidator | lanacl 
+----------+----------+---------+--------------+---------------+-----------+--------------+--------
+ internal |       10 | f       | f            |             0 |         0 |         2246 | 
+ c        |       10 | f       | f            |             0 |         0 |         2247 | 
+ sql      |       10 | f       | t            |             0 |         0 |         2248 | 
+ plpgsql  |       10 | t       | t            |         12396 |     12397 |        12398 | 
+(4 rows)
+
+//membuat fungsi salam()
+dbpelatihan=> CREATE OR REPLACE FUNCTION salam() RETURNS TEXT AS 
+dbpelatihan-> $$
+dbpelatihan$> DECLARE
+dbpelatihan$> pesan text;
+dbpelatihan$> BEGIN
+dbpelatihan$> pesan = 'Selamat Belajar plPGSQL';
+dbpelatihan$> RETURN pesan;
+dbpelatihan$> END;
+dbpelatihan$> $$
+dbpelatihan-> LANGUAGE plpgsql;
+CREATE FUNCTION
+
+//melihat fungsi yang ada
+dbpelatihan=> \df
+                        List of functions
+ Schema | Name  | Result data type | Argument data types |  Type  
+--------+-------+------------------+---------------------+--------
+ public | salam | text             |                     | normal
+(1 row)
+
+//memanggil fungsi salam()
+dbpelatihan=> select salam();
+          salam          
+-------------------------
+ Selamat Belajar plPGSQL
+(1 row)
+
+//membuat fungsi segitiga dengan argumne pertama Alas dan argumen kedua Tinggi
+dbpelatihan=> CREATE OR REPLACE FUNCTION luas_segitiga(int, int) RETURNS DOUBLE PRECISION AS  
+dbpelatihan-> $$
+dbpelatihan$> DECLARE
+dbpelatihan$> luas DOUBLE PRECISION;
+dbpelatihan$> BEGIN
+dbpelatihan$> luas = 0.5 * $1 * $2;
+dbpelatihan$> RETURN luas;
+dbpelatihan$> END;
+dbpelatihan$> $$
+dbpelatihan-> LANGUAGE plpgsql;
+CREATE FUNCTION
+
+
+//melihat detail fungsi luas_segitiga
+dbpelatihan=> \df luas_segitiga
+                            List of functions
+ Schema |     Name      | Result data type | Argument data types |  Type  
+--------+---------------+------------------+---------------------+--------
+ public | luas_segitiga | double precision | integer, integer    | normal
+(1 row)
+
+//Memanggil fungsi segitiga
+dbpelatihan=> select luas_segitiga(3,4);
+ luas_segitiga 
+---------------
+             6
+(1 row)
+
+//Membuat fungsi penjumlahan()
+dbpelatihan=> CREATE OR REPLACE FUNCTION penjumlahan(int, int) RETURNS DOUBLE PRECISION AS 	
+dbpelatihan-> $$
+dbpelatihan$> DECLARE
+dbpelatihan$> jumlah DOUBLE PRECISION;
+dbpelatihan$> BEGIN
+dbpelatihan$> jumlah = $1 + $2;
+dbpelatihan$> RETURN jumlah;
+dbpelatihan$> END;
+dbpelatihan$> $$
+dbpelatihan-> LANGUAGE plpgsql;
+CREATE FUNCTION
+
+//Melihat detail fungsi penjumlahan
+dbpelatihan=> \df penjumlahan 
+                           List of functions
+ Schema |    Name     | Result data type | Argument data types |  Type  
+--------+-------------+------------------+---------------------+--------
+ public | penjumlahan | double precision | integer, integer    | normal
+(1 row)
+
+//memanggil fungsi penjumlahan()
+dbpelatihan=> select penjumlahan(3,5);
+ penjumlahan 
+-------------
+           8
+(1 row)
+
+//Membuat fungsi luas_linkaran()
+dbpelatihan=>  CREATE OR REPLACE FUNCTION luas_lingkaran(int, int) RETURNS DOUBLE PRECISION AS 	
+dbpelatihan-> $$
+dbpelatihan$> DECLARE
+dbpelatihan$> lingkaran DOUBLE PRECISION;
+dbpelatihan$> BEGIN
+dbpelatihan$> lingkaran = 3.14 * $1 * $2;
+dbpelatihan$> RETURN lingkaran;
+dbpelatihan$> END;
+dbpelatihan$> $$
+dbpelatihan-> LANGUAGE plpgsql;
+CREATE FUNCTION
+
+//Melihat detail fungsi luas_lingkaran
+dbpelatihan=> \df luas_lingkaran 
+                             List of functions
+ Schema |      Name      | Result data type | Argument data types |  Type  
+--------+----------------+------------------+---------------------+--------
+ public | luas_lingkaran | double precision | integer, integer    | normal
+(1 row)
+
+//memanggil fungsi luas_linkaran()
+dbpelatihan=> select luas_lingkaran(7,7);
+ luas_lingkaran 
+----------------
+         153.86
+(1 row)
+
+//Membuat fungsi hasil_ujian()
+dbpelatihan=> CREATE OR REPLACE FUNCTION hasil_ujian(double precision) RETURNS T 
+dbpelatihan-> $$
+dbpelatihan$> DECLARE
+dbpelatihan$> nilai ALIAS FOR $1;
+dbpelatihan$> BEGIN
+dbpelatihan$> IF nilai > 55 then RETURN 'LULUS';
+dbpelatihan$> ELSE RETURN 'TIDAK LULUS';
+dbpelatihan$> END IF;
+dbpelatihan$> END;
+dbpelatihan$> $$
+dbpelatihan-> LANGUAGE plpgsql;
+CREATE FUNCTION
+
+//Melihat detail hasil_ujian
+dbpelatihan=> \df hasil_ujian
+                           List of functions
+ Schema |    Name     | Result data type | Argument data types |  Type  
+--------+-------------+------------------+---------------------+--------
+ public | hasil_ujian | text             | double precision    | normal
+(1 row)
+
+//Memanggil fungsi hasil_ujian
+dbpelatihan=>  select hasil_ujian(56);
+ hasil_ujian 
+-------------
+ LULUS
+(1 row)
+
+dbpelatihan=> select hasil_ujian(45);
+ hasil_ujian 
+-------------
+ TIDAK LULUS
+(1 row)
+
+//Membuat fungsi grade nilai
+dbpelatihan=> CREATE OR REPLACE FUNCTION grade(double precision) RETURNS TEXT AS 
+dbpelatihan$> DECLARE
+dbpelatihan$> nilai ALIAS FOR $1;
+dbpelatihan$> BEGIN
+dbpelatihan$> IF nilai >= 85 and nilai <= 100 THEN RETURN 'A';
+dbpelatihan$> ELSEIF nilai >= 70 and nilai < 85 THEN RETURN 'B';
+dbpelatihan$> ELSEIF nilai >= 56 and nilai < 70 THEN RETURN 'C';
+dbpelatihan$> ELSEIF nilai >= 31 and nilai < 56 THEN RETURN 'D'; 
+dbpelatihan$> ELSE RETURN 'E';
+dbpelatihan$> END IF;
+dbpelatihan$> END;
+dbpelatihan$> $$
+dbpelatihan-> LANGUAGE plpgsql;
+CREATE FUNCTION
+
+//Melihat detail fungsi grade
+dbpelatihan=> \df grade 
+                        List of functions
+ Schema | Name  | Result data type | Argument data types |  Type  
+--------+-------+------------------+---------------------+--------
+ public | grade | text             | double precision    | normal
+(1 row)
+
+//Memanggil fungsi grade
+dbpelatihan=> select grade(95);
+ grade 
+-------
+ A
+(1 row)
+
+dbpelatihan=> select grade(84);
+ grade 
+-------
+ B
+(1 row)
+
+dbpelatihan=> select grade(65);
+ grade 
+-------
+ C
+(1 row)
+
+dbpelatihan=> select grade(50);
+ grade 
+-------
+ D
+(1 row)
+
+dbpelatihan=> select grade(25);
+ grade 
+-------
+ E
+(1 row)
+
+dbpelatihan=> 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
